@@ -1,0 +1,44 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+
+DELAY = 5
+
+driver = webdriver.Chrome()
+driver.minimize_window()
+driver.get("https://truyenfull.io/thoi-nien-thieu-tuoi-dep-ay/")
+
+def getChapters():
+    try:
+        element = WebDriverWait(driver, DELAY).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#list-chapter"))
+        )
+    except:
+        print('An error has occured')
+    finally:
+        driver.quit()
+
+def getContent():
+    try:
+        element = WebDriverWait(driver, DELAY).until(
+            EC.presence_of_element_located((By.ID, "chapter-c"))
+        )
+        content = element.get_attribute('innerHTML')
+        return str(content)
+    except:
+        print('An error has occured')
+    finally:
+        driver.quit()
+
+def cleanContent(content):
+    elements = ['script', 'div', 'em']
+    # parse html
+    soup = BeautifulSoup(content, 'html.parser')
+    # loop through all unwanted elements
+    for el in elements:
+        # remove all specific elements from html
+        for s in soup.find_all(el):
+            s.decompose()
+    return soup.prettify()
