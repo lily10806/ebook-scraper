@@ -7,28 +7,26 @@ from bs4 import BeautifulSoup
 
 DELAY = 5
 
-chromeOptions = Options()
-chromeOptions.add_argument('--headless=new')
-chromeOptions.add_argument('--headless')
-driver = webdriver.Chrome(options=chromeOptions)
-driver.get("https://truyenfull.io/thoi-nien-thieu-tuoi-dep-ay/")
+def createDriverInstance():
+    chromeOptions = Options()
+    chromeOptions.add_argument('--headless=new')
+    chromeOptions.add_argument('--headless')
+    driver = webdriver.Chrome(options=chromeOptions)
+    return driver
 
-def getChapters():
-    print('Getting chapters...')
+def getChapters(driver, url):
+    driver.get(url)
     try:
         elements = WebDriverWait(driver, DELAY).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#list-chapter .list-chapter li a"))
         )
-        # chaptersList = element.get_attribute('innerHTML')
-        links = [el.get_attribute('href') for el in elements]
-        print(links)
-        return links
+        chaptersLinks = {el.text : el.get_attribute('href') for el in elements}
+        print(f'Chapters discovered: {len(chaptersLinks)}')
+        return chaptersLinks
     except:
         print('An error has occured')
-    finally:
-        driver.quit()
 
-def getContent(url):
+def getContent(driver, url):
     driver.get(url)
     try:
         element = WebDriverWait(driver, DELAY).until(
@@ -38,10 +36,19 @@ def getContent(url):
         return str(content)
     except:
         print('An error has occured')
-    finally:
-        driver.quit()
 
-def cleanContent(content):
+def cleanContent(content, chapName):
+    content = f'\
+        <!DOCTYPE html>\
+        <html>\
+            <head>\
+                <title>{chapName}</title>\
+            </head>\
+            <body>\
+                <h1>{chapName}</h1>\
+                <p>{content}</p>\
+            </body>\
+        </html>'
     elements = ['script', 'div', 'em']
     # parse html
     soup = BeautifulSoup(content, 'html.parser')
