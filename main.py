@@ -1,7 +1,11 @@
 from scraper import *
 from fileHandler import *
 
-# scrape website & clean content
-content = cleanContent(getContent())
-# write to html file
-writeHTML(content)
+def main():
+    # scrape website & clean content
+    chaptersLinks = getChapters()
+    # writeHTML(content)
+    # write to html file
+
+if __name__ == '__main__':
+    main()
