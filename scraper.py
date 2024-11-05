@@ -11,24 +11,45 @@ def createDriverInstance():
     chromeOptions = Options()
     chromeOptions.add_argument('--headless=new')
     chromeOptions.add_argument('--headless')
+    chromeOptions.add_argument('--log-level=2')
     driver = webdriver.Chrome(options=chromeOptions)
     return driver
 
-def getChapters(driver, url):
-    driver.get(url)
+def getTitle(driver, url):
     try:
-        elements = WebDriverWait(driver, DELAY).until(
+        driver.get(url)
+        element = WebDriverWait(driver, DELAY).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".title"))
+        )
+        title = element.text.title()
+        print(f'Title found: {title}')
+        return title
+    except:
+        print('An error has occured')
+def getInfo(driver, url):
+    try:
+        driver.get(url)
+
+        # get book's title
+        title = WebDriverWait(driver, DELAY).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".title"))
+        ).text.title()
+
+        # get list dictionary of chapters' names and links
+        chapters = WebDriverWait(driver, DELAY).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#list-chapter .list-chapter li a"))
         )
-        chaptersLinks = {el.text : el.get_attribute('href') for el in elements}
-        print(f'Chapters discovered: {len(chaptersLinks)}')
-        return chaptersLinks
+        chaptersLinks = {c.text : c.get_attribute('href') for c in chapters}
+
+        print(f'Title: {title}')
+        print(f'Number of Chapters: {len(chaptersLinks)}')
+        return title, chaptersLinks
     except:
         print('An error has occured')
 
 def getContent(driver, url):
-    driver.get(url)
     try:
+        driver.get(url)
         element = WebDriverWait(driver, DELAY).until(
             EC.presence_of_element_located((By.ID, "chapter-c"))
         )
@@ -45,11 +66,11 @@ def cleanContent(content, chapName):
                 <title>{chapName}</title>\
             </head>\
             <body>\
-                <h1>{chapName}</h1>\
+                <h1 style="text-align:center;">{chapName}</h1>\
                 <p>{content}</p>\
             </body>\
         </html>'
-    elements = ['script', 'div', 'em']
+    elements = ['script', 'div', 'em', 'a', 'img']
     # parse html
     soup = BeautifulSoup(content, 'html.parser')
     # loop through all unwanted elements
