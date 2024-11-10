@@ -11,6 +11,8 @@ def createDriverInstance():
     chromeOptions = Options()
     chromeOptions.add_argument('--headless=new')
     chromeOptions.add_argument('--headless')
+    chromeOptions.add_argument('--ignore-certificate-errors')
+    chromeOptions.add_argument('--ignore-ssl-errors')
     chromeOptions.add_argument('--log-level=2')
     driver = webdriver.Chrome(options=chromeOptions)
     return driver
