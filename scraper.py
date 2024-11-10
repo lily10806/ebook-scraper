@@ -15,17 +15,6 @@ def createDriverInstance():
     driver = webdriver.Chrome(options=chromeOptions)
     return driver
 
-def getTitle(driver, url):
-    try:
-        driver.get(url)
-        element = WebDriverWait(driver, DELAY).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, ".title"))
-        )
-        title = element.text.title()
-        print(f'Title found: {title}')
-        return title
-    except:
-        print('An error has occured')
 def getInfo(driver, url):
     try:
         driver.get(url)
@@ -34,16 +23,25 @@ def getInfo(driver, url):
         title = WebDriverWait(driver, DELAY).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, ".title"))
         ).text.title()
-
+        # get author
+        author = WebDriverWait(driver, DELAY).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".info a[itemprop='author']"))
+        ).text.title()
+        print(author)
         # get list dictionary of chapters' names and links
         chapters = WebDriverWait(driver, DELAY).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#list-chapter .list-chapter li a"))
         )
         chaptersLinks = {c.text : c.get_attribute('href') for c in chapters}
-
         print(f'Title: {title}')
+        print(f'Author: {author}')
         print(f'Number of Chapters: {len(chaptersLinks)}')
-        return title, chaptersLinks
+        bookInfo = {
+            'title' : title,
+            'author': author,
+            'chapters': chaptersLinks
+        }
+        return bookInfo
     except:
         print('An error has occured')
 

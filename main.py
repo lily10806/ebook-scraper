@@ -5,7 +5,7 @@ from os import remove
 import xml2epub
 
 def main():
-    URL = "https://truyenfull.io/thoi-nien-thieu-cua-anh-va-em/"
+    URL = input('Enter URL to book: ')
     BOOKS_DIRNAME = 'books'
 
     # create driver
@@ -16,10 +16,13 @@ def main():
 
     # scrape website for title and chapters
     print('Getting info...')
-    title, chaptersLinks = getInfo(driver, URL)
+    bookInfo = getInfo(driver, URL)
+    title = bookInfo['title']
+    author = bookInfo['author']
+    chaptersLinks = bookInfo['chapters']
 
      # create empty ebook
-    book = xml2epub.Epub(title)
+    book = xml2epub.Epub(title, creator=author, language='vi')
     # create custom cover image
     coverImage = input('Enter link to custom cover image. Leave blank to generate default cover: ')
     print('Creating cover page...')
